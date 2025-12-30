@@ -1,89 +1,83 @@
 # Bug Busters UI Specification
 
-## Objective & Audience
-- **Goal:** Provide a single-screen game interface where beginners can instantly understand how to start, play, and read their score within 20 seconds of landing on the page.
-- **Players:** Novice web users (children or new coders) who need large tap targets, plain language, and forgiving feedback.
-- **Constraints:** Vanilla HTML/CSS/JS, responsive to small laptops/tablets, and resilient even if the optional leaderboard API is offline.
+## 1. Experience Goals
+- Single-screen game that communicates gameplay, scoring, issuer insights, and leaderboard without navigation.
+- Beginner-friendly interactions: obvious call-to-action buttons, large tap targets, and clear messaging for timers, score submission, and data availability.
+- Visual hierarchy keeps the game canvas dominant while still surfacing issuer data and leaderboard status.
 
-## Layout Overview
-All regions sit inside a centered 960 px max-width container with 24 px gutters and a soft card background. Minimum spacing between sections: 16 px.
+## 2. Layout Overview
+```
++-------------------------------------------------------------+
+| Header row: title, short instructions, backend status chip  |
++----------------------+----------------------+---------------+
+|   Main Game Stage    |   Sidebar Panel      | Leaderboard   |
+|   (left ~55%)        |   (center ~25%)      |   (right ~20%)|
++----------------------+----------------------+---------------+
+| Footer: controls (Start/Submit/Refresh), timer, status text |
++-------------------------------------------------------------+
+```
+- **Main Game Stage**: hosts moving bug target, score readout, subtle background grid to imply motion.
+- **Sidebar (Issuer Panel)**: scrollable list grouped by filing period headings with issuer chips beneath.
+- **Leaderboard Column**: compact list showing rank, player initials, and score plus error messaging.
+- **Footer Control Bar**: sticky row containing timer countdown, start/restart button, submit score form (name + button), and refresh leaderboard button.
 
-1. **Header Strip (72 px height)**
-   - Left: Bug Busters logo (stylized text + bug icon).
-   - Center: 20 second timer pill (`00:20` default) with live countdown.
-   - Right: Score pill showing `Score: 0`.
-   - Entire strip stays fixed at the top on larger screens; on mobile it becomes a stacked block (logo, timer, score).
+## 3. Key Components
+### 3.1 Header
+- Contains game logo text ("Bug Busters") and single-sentence instructions (“Click the bug for 20 seconds”).
+- Include a pill-shaped backend status indicator that can show “Online” (green) or “Offline” (red) based on `/health` polling.
 
-2. **Instruction Banner (full-width, 56 px height)**
-   - Concise message: “Tap the bug to earn points before the timer hits zero. Replay to beat your best!”
-   - Includes a subtle info icon and uses a contrasting pastel background.
+### 3.2 Game Stage
+- **Score Display**: large numeric value positioned top-left inside the stage; label “Score”.
+- **Timer Badge**: circular badge top-right showing countdown from 20 to 0; color transitions from green (>10s) to amber (10–4s) to red (<=3s).
+- **Bug Target**: 60–80px circular element with bug icon or simple emoji; moves randomly every 600–900ms and after clicks; keep inside stage padding.
+- **Play Field**: 4:3 rectangle with light shadow, minimum height 320px; even spacing to prevent overlap with scoreboard overlays.
+- **End State Overlay**: semi-transparent layer that appears when timer hits 0 with message “Time’s up! Final Score: X”.
 
-3. **Game Stage (primary focal card, 540 px height)**
-   - Light grid backdrop for depth.
-   - Bug sprite (circular button, ~56 px) moves within this area.
-   - Bottom-left overlay hosts contextual cues such as “Great hit!” for 800 ms.
-   - Bottom-right overlay hosts the Replay button (disabled until the round ends).
+### 3.3 Issuer Panel
+- Title “Issuer Data (auto from SEC filings)” with miniature refresh/retry icon.
+- Each period folder renders as accordion-like block:
+  - Period heading (e.g., `000110465925072098`) styled with monospace label showing total issuers count.
+  - Under heading, stacked list of issuer names; show placeholder text when the array is empty.
+- Error handling: display alert-styled card (“Issuer list unavailable. Showing cached data.”) when fetch fails.
+- Panel should be scrollable independently to keep layout stable during long lists.
 
-4. **Leaderboard & Guidance Panel (right column on desktop, stacked below on mobile)**
-   - Section title “Community Scores” with API status badge (e.g., “Offline mode”).
-   - Table stub with three rows and placeholder text (“Waiting for scores…”).
-   - Beneath table: form stub for player name input (max 12 chars) and “Submit Score” button (disabled until final score exists).
+### 3.4 Leaderboard
+- Section title plus subtitle “Top 10 latest submissions”.
+- List rows contain rank number, player initials input, and score.
+- Disabled state overlays the list if backend is offline, with instructions to retry refresh.
+- Include placeholder row text (“No scores yet. Play to set the record!”) when list is empty.
 
-5. **Footer Helper Row**
-   - Includes small-print reminders: “20-second rounds · Works offline · Tap replay to try again.”
+### 3.5 Controls & Forms
+- Start button toggles between “Start Game” and “Play Again”; disabled while timer is running.
+- Submit score form: small text input for initials (max 3 chars) and submit button; form is enabled only when a final score exists.
+- Refresh button triggers `GET /scores`; show spinner inline within button label when loading.
+- Status text area communicates last action (e.g., “Score submitted” or “Backend unreachable”).
 
-### Responsive Behavior
-- ≥960 px: Header + Instruction full width; Game Stage (70%) and Leaderboard (30%) sit side-by-side.
-- 640–959 px: Stack vertically with shared margins; timer/score pills align beneath logo.
-- <640 px: Full-width stacking, increase tap targets to 64 px, and hide non-essential shadows to avoid clutter.
+## 4. Interaction Notes
+1. **Game Start**: clicking Start sets score=0, timer=20, enables bug movement, disables submit until round completes.
+2. **Bug Click**: increments score, triggers quick scale animation, and repositions bug to a new random coordinate.
+3. **Timer End**: stops movement, disables bug clicks, enables submit form, surfaces overlay message, and auto-focuses initials field.
+4. **Leaderboard Submit**: POSTs `{ name, score }`; on success, clear input and refresh leaderboard list. On failure, show inline error and keep score available for retry.
+5. **Issuer Panel Load**: fetch at startup; if JSON missing or malformed, fall back to a friendly error with retry option.
 
-## Visual Style
-- **Color Palette**
-  - Background: `#f7f9fc` (page) with a white card (`#ffffff`) for sections.
-  - Accent 1: `#ff6b6b` for the bug, active elements, and Replay CTA.
-  - Accent 2: `#4ecdc4` for timer/score pills and success highlights.
-  - Accent 3: `#1a535c` for headings and icons.
-  - Status colors: `#ffd166` (warning/offline), `#2ec4b6` (online).
-- **Typography**
-  - Headings: `Poppins`, 600 weight (fallback Arial).
-  - Body text: `Inter`, 400 weight (fallback Helvetica).
-  - Numbers (score/timer): use a mono-spaced variant such as `Roboto Mono` for easy tracking.
-- **Iconography**
-  - Simple SVG bug icon (two circles + antennae).
-  - Info/status icons derived from inline SVG to avoid external libraries.
+## 5. Styling Guidance
+- Color palette: light background (#f5f7fb), accent orange for bug (#ff9f43), greens for success (#4caf50), reds for warnings (#f44336).
+- Typography: system sans-serif (e.g., `font-family: 'Segoe UI', sans-serif`); emphasize headings with 700 weight.
+- Buttons: rounded 6px corners, subtle drop shadow when active.
+- Motion: bug movement uses CSS transition for smooth repositioning; clicks trigger scale/opacity effect lasting <200ms.
+- Shadows: apply soft shadow to cards/panels to create separation between main stage, issuer panel, and leaderboard.
 
-## Interaction States
-1. **Pre-Game**
-   - Timer shows `00:20`, bug pulses slowly.
-   - “Start Round” button (same location as Replay) invites initial play.
-2. **Active Round**
-   - Bug jumps to a new random location every 800 ms; on hover/touch, it scales to 110%.
-   - Click/tap increments score and triggers a quick particle burst (CSS pseudo-elements) plus accessible text (“+1 point!”).
-   - Timer decrements each second with subtle tick animation.
-   - Leaderboard submission controls remain disabled.
-3. **Round End**
-   - Game Stage dims, bug stops moving, final score card slides in center (“You busted X bugs!”).
-   - Replay button becomes primary CTA; Start label switches to “Play Again”.
-   - “Submit Score” enables if API online; otherwise show tooltip “Leaderboard offline”.
-4. **Error / Offline**
-   - API status badge toggles to warning color with text “Offline mode”.
-   - Submitting a score while offline shows inline message “Saved locally—sync when back online” (non-blocking).
+## 6. Responsiveness & Accessibility
+- Breakpoint at 768px: stack panels vertically -> Game Stage top, Leaderboard next, Issuer panel last; keep controls sticky at bottom.
+- Ensure bug target meets 44px minimum tap size for touch devices.
+- Provide `aria-live="polite"` region for status messages (timer end, submission result).
+- High-contrast text for readability; avoid relying solely on color (e.g., timer badge also shows textual warning “3s left”).
 
-## Accessibility & Guidance
-- Provide `aria-live="polite"` regions for timer and score updates.
-- Use color plus text labels for states; never rely solely on color.
-- Minimum contrast ratio 4.5:1 for text, 3:1 for icons/buttons.
-- Ensure bug hit area is at least 48 px on smallest view.
-- Show onboarding tip (tooltip or speech bubble) for first load describing controls; allow dismiss via close icon or after first hit.
+## 7. Data & Backend Integration Prompts
+- Issuer panel fetch path: `./data/issuers_index.json`; handle promise rejection with fallback text.
+- Leaderboard endpoints: `GET /scores` populates list, `POST /scores` triggered from submit form, `GET /health` to update header chip.
+- Maintain in-memory state only; reset expectations communicated in status text (“Scores clear when server restarts”).
 
-## Content & Copy
-- Headline: “Bug Busters: Click the critter before time runs out!”
-- Instruction banner text: “Tap or click the bug to earn points. Finish before the 20-second timer hits zero.”
-- Replay CTA: “Replay Round”.
-- Score submission label: “Nickname (optional)”.
-
-## Implementation Notes
-- Keep DOM hooks (`data-role` attributes) for JS targeting (e.g., `data-role="timer"`, `data-role="bug"`).
-- Reserve `div[data-role="leaderboard-status"]` for backend integration so the Frontend Dev can toggle classes based on fetch results.
-- Provide exported design tokens (colors, spacing) as CSS custom properties in `:root` for reuse.
-- Use CSS transitions for bug movement/scale to keep animation approachable for beginners and avoid abrupt jumps.
+## 8. Assets & Icons
+- Bug graphic can be simple SVG or emoji (🪲) to keep scope small.
+- Use inline SVG icons for refresh/retry to avoid extra asset loading.

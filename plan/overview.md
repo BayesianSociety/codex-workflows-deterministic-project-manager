@@ -1,26 +1,26 @@
-# Plan Overview: Bug Busters Game
+# Bug Busters Plan Overview
 
-## Restated Requirements
-- Build a single-screen game named "Bug Busters" where players click a moving bug to earn points.
-- Gameplay lasts exactly 20 seconds, after which the final score is shown and replay can be offered.
-- Provide optional integration with a lightweight backend leaderboard (top 10 scores stored in memory) without requiring it for core play.
-- Deliverables are organized per role and folder: design specs and wireframe, frontend HTML/CSS/JS implementation, backend Node/Express server, and testing artifacts.
-- Maintain beginner-friendly approaches (vanilla stack, clear instructions, no external database).
+## Requirements Recap
+- Single-screen "Bug Busters" game where a moving bug awards points per click and stops exactly at 20 seconds with a final score display.
+- Data Scanner must traverse `Unified_ver1/data/<CIK>/<PERIOD>/infotable.xml`, extract every `<nameOfIssuer>`, and publish `data/issuers_index.json` grouped by period folders plus a documented scan plan.
+- Frontend loads `issuers_index.json`, renders the issuer groups in a right-side panel, runs the bug game loop, and hooks leaderboard UI to backend endpoints.
+- Backend (Express-like) keeps memory-only scores and serves `GET /health`, `GET /scores`, and `POST /scores` with CORS/static support so the frontend can interact locally.
+- Designer supplies a UI spec and wireframe describing layout (game area, timers, issuers, leaderboard) and interaction/visual cues for beginners.
+- Tester prepares a comprehensive test plan and `tests/check_routes.sh` covering gameplay, issuer panel, leaderboard, and API health.
+- All documentation (docs/, design/, data/, frontend/, backend/, tests/) must stay concise, framework-free, and aligned with the JSON plan deliverables and success checks.
 
-## Role Dependencies
-1. **Designer → Frontend Developer**
-   - Frontend waits on `design/ui-spec.md` and `design/wireframe.png` to finalize layout, styling, and interactions.
-2. **Frontend Developer ↔ Backend Developer**
-   - Frontend needs API contract for `/scores` routes; Backend needs knowledge of payload structure and fetch cadence to validate requests.
-   - Leaderboard integration is optional but should degrade gracefully when backend offline.
-3. **Backend Developer → Tester**
-   - Tester requires backend run instructions and sample payloads to complete `tests/route-check.sh` and the broader test plan.
-4. **Frontend Developer → Tester**
-   - Manual gameplay checks in `tests/test-plan.md` depend on a working frontend build with clear scoring/timer behavior.
-5. **Project Manager ↔ All Roles**
-   - PM ensures requirements stay synchronized, resolves blockers, and confirms each handoff meets the success checks defined in the plan JSON.
+## Role Dependency Map
+- **Project Manager → All**: Requirements, task breakdown, and checklist inform Designer, Data Scanner, Frontend, Backend, and Tester deliverables.
+- **Designer → Frontend Developer**: UI spec and wireframe dictate layout, interactions, and styling used by the frontend build.
+- **Data Scanner → Frontend Developer & Tester**: `data/issuers_index.json` feeds the issuer panel; scan instructions guide Tester in validating data coverage and error handling.
+- **Backend Developer ↔ Frontend Developer**: Frontend relies on `/health` and `/scores` contracts; backend depends on frontend feedback to finalize payload formats.
+- **Backend Developer → Tester**: Tester’s script and manual checks require stable endpoints and documented data shapes.
+- **Frontend Developer → Tester**: Tester validates gameplay, issuer panel rendering, and leaderboard UX; any UI changes must be communicated.
+- **All → Tester**: Final acceptance depends on Tester consuming documentation, scanner output, frontend assets, and backend server.
 
-## Execution Notes
-- Work in parallel where possible: Designer drafts assets while Backend scaffolds API; Frontend can stub leaderboard hooks until backend is ready.
-- Schedule integration checkpoints: (a) Design sign-off, (b) Frontend gameplay demo, (c) Backend API smoke test, (d) Combined leaderboard test, (e) Final QA run.
-- Document all run/test instructions in the respective folders to keep the experience accessible to newcomers.
+## Suggested Execution Order
+1. Project Manager finalizes docs to lock requirements and success criteria.
+2. Designer drafts UI spec/wireframe while Data Scanner begins crawling infotable sources.
+3. Backend Developer scaffolds server routes concurrently so contract details are ready early.
+4. Frontend Developer integrates design guidance, issuer JSON, and backend endpoints once upstream artifacts exist.
+5. Tester iteratively reviews docs, reruns `tests/check_routes.sh`, and executes manual scenarios, flagging gaps before release.

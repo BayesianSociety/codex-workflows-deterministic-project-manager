@@ -1,14 +1,13 @@
 {
   "name": "bug-busters-backend",
   "version": "1.0.0",
-  "description": "Minimal API server for Bug Busters leaderboard",
+  "description": "In-memory leaderboard API for Bug Busters",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "license": "MIT",
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^4.19.2"
   }
 }

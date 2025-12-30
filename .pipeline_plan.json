@@ -1,27 +1,41 @@
 {
-  "project_name": "Bug Busters Game",
+  "project_name": "Bug Busters Multi-Agent Build",
   "roles": [
     {
       "name": "Project Manager",
       "required_outputs": [
-        "README.md"
+        "docs/project_overview.md",
+        "docs/task_breakdown.md",
+        "docs/requirements_checklist.md"
       ],
       "success_checks": [
-        "Outline overall workflow and deliverables",
-        "Assign clear responsibilities and timelines to each role",
-        "Summarize dependencies between frontend and backend work"
+        "Docs capture gameplay, timing, leaderboard, data panel, backend routes, storage strategy",
+        "Checklist covers QA of data integration and gameplay flow",
+        "Tasks clearly assign work to Designer, Data Scanner, Frontend, Backend, Tester"
       ]
     },
     {
       "name": "Designer",
       "required_outputs": [
-        "design/ui-spec.md",
+        "design/ui_spec.md",
         "design/wireframe.png"
       ],
       "success_checks": [
-        "UI spec describes layout, colors, typography, and interactions for Bug Busters",
-        "Wireframe conveys single-screen layout with score, timer, game area, and leaderboard section",
-        "Capitalizes on beginner-friendly instructions and simplicity"
+        "Spec defines layout with game area, score display, timers, issuer panel",
+        "Wireframe shows interactions (bug target, leaderboard placeholder, issuers panel)",
+        "Brief styling guidance for beginner-friendly implementation"
+      ]
+    },
+    {
+      "name": "Data Scanner",
+      "required_outputs": [
+        "data/issuers_index.json",
+        "data/scan_plan.md"
+      ],
+      "success_checks": [
+        "Scan plan lists folders and parsing approach",
+        "issuers_index.json groups issuer names by period folder for every infotable.xml",
+        "Handles missing or malformed XML gracefully"
       ]
     },
     {
@@ -32,40 +46,41 @@
         "frontend/game.js"
       ],
       "success_checks": [
-        "Implements clickable moving bug, score display, and 20-second timer",
-        "Integrates optional leaderboard fetch/post when backend available",
-        "No heavy frameworks; vanilla JS/CSS; code easy for beginners"
+        "Bug moves randomly, clicks increment score, timer ends game at 20s",
+        "Right panel lists periods with issuer names from issuers_index.json",
+        "Leaderboard section hooks to backend GET/POST /scores and updates UI"
       ]
     },
     {
       "name": "Backend Developer",
       "required_outputs": [
-        "backend/server.js"
+        "backend/server.js",
+        "backend/README.md"
       ],
       "success_checks": [
-        "Provides in-memory store for scores",
-        "Exposes GET /health and GET/POST /scores with validation",
-        "Uses lightweight stack (e.g., Node/Express) and documents how to run"
+        "Express-like server with in-memory scores, GET /health returns status, GET/POST /scores manage top 10",
+        "CORS/static support so frontend can call API locally",
+        "Docs explain start instructions and data shapes"
       ]
     },
     {
       "name": "Tester",
       "required_outputs": [
-        "tests/test-plan.md",
-        "tests/route-check.sh"
+        "tests/test_plan.md",
+        "tests/check_routes.sh"
       ],
       "success_checks": [
-        "Test plan covers UI/game basics and API endpoints",
-        "Shell script verifies backend routes (health and score CRUD)",
-        "Instructions explain how to run tests after backend start"
+        "Test plan outlines manual checks for gameplay, data panel, leaderboard",
+        "Shell script hits /health and /scores endpoints to confirm responses",
+        "Notes include verifying issuers_index.json load failures"
       ]
     }
   ],
   "global_constraints": [
-    "Single-screen browser game named \"Bug Busters\"",
-    "Game lasts 20 seconds and ends with final score display",
-    "Optional backend leaderboard limited to top 10 in memory",
-    "Files organized into clear folders (design/, frontend/, backend/, tests/)",
-    "Keep implementation approachable for beginners; no external DB"
+    "Keep files small, plain JS/CSS/HTML, no frameworks",
+    "All paths relative to repo and organized per role folders",
+    "Memory-only storage for leaderboard",
+    "Frontend must load issuers_index.json and show issuer names grouped by period",
+    "Game lasts exactly 20 seconds before showing final score"
   ]
 }

@@ -1,55 +1,65 @@
+const path = require('path');
 const express = require('express');
-const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-
-// Enable JSON payloads and permissive CORS for local frontend development.
-app.use(cors());
-app.use(express.json());
-
-// Simple in-memory leaderboard store.
+const PORT = process.env.PORT || 3000;
+const MAX_SCORES = 10;
 const scores = [];
 
-const isValidName = (value) => typeof value === 'string' && value.trim().length > 0;
-const isValidScore = (value) => typeof value === 'number' && Number.isFinite(value) && value >= 0;
+app.use(express.json());
 
-const getTopScores = () => scores.slice(0, 10);
-
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
 });
 
-app.get('/scores', (_req, res) => {
-  res.json({ scores: getTopScores() });
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
+});
+
+app.get('/scores', (req, res) => {
+  res.json({ scores });
 });
 
 app.post('/scores', (req, res) => {
   const { name, score } = req.body || {};
+  const trimmedName = typeof name === 'string' ? name.trim() : '';
+  const numericScore = typeof score === 'number' ? score : Number(score);
 
-  if (!isValidName(name) || !isValidScore(score)) {
-    return res.status(400).json({ error: 'Name (string) and score (non-negative number) are required.' });
+  if (!trimmedName) {
+    return res.status(400).json({ error: 'Name is required.' });
   }
 
-  const entry = {
-    name: name.trim().slice(0, 40),
-    score: Math.round(score),
-    submittedAt: new Date().toISOString(),
-  };
+  if (!Number.isFinite(numericScore) || numericScore < 0) {
+    return res.status(400).json({ error: 'Score must be a non-negative number.' });
+  }
 
-  scores.push(entry);
-  scores.sort((a, b) => b.score - a.score || new Date(a.submittedAt) - new Date(b.submittedAt));
-  scores.splice(10);
+  scores.push({
+    name: trimmedName.slice(0, 50),
+    score: Math.floor(numericScore),
+    submittedAt: new Date().toISOString()
+  });
 
-  res.status(201).json({ score: entry, scores: getTopScores() });
+  scores.sort((a, b) => b.score - a.score);
+  if (scores.length > MAX_SCORES) {
+    scores.length = MAX_SCORES;
+  }
+
+  res.status(201).json({ scores });
 });
 
-app.use((err, _req, res, _next) => {
-  console.error('Unexpected server error:', err);
-  res.status(500).json({ error: 'Internal Server Error' });
+app.use((err, req, res, next) => {
+  console.error('Unexpected error in request handler:', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.listen(PORT, () => {
-  console.log(`Bug Busters backend running on http://localhost:${PORT}`);
-  console.log('Use POST /scores with JSON { "name": "Player", "score": 10 } to submit.');
+  console.log(`Bug Busters backend listening on port ${PORT}`);
 });

@@ -1,73 +1,82 @@
 # Bug Busters Release Runbook
 
-## Purpose & Scope
-This runbook explains how to ship the Bug Busters single-screen browser game described in `REQUIREMENTS.md` and validated through `TEST.md`/`tests/TEST_PLAN.md`. Follow these steps to spin up the backend leaderboard API, serve the frontend, run the automated smoke tests, and complete the manual QA pass expected by the tester role.
+## 1. Scope & References
+- **Goal**: Ship the Bug Busters single-screen browser game (gameplay, issuer data panel, leaderboard) together with its in-memory backend (`backend/server.js`) and embedded issuer data block sourced from `plan/issuers_index.json`.
+- **Sources of truth**: `REQUIREMENTS.md` (functional scope), `AGENT_TASKS.md` (role deliverables), `TEST.md` & `tests/TEST_PLAN.md` (acceptance), `README.md` (architecture), `design/design_spec.md` + `design/wireframe.md` (UI contract), `plan/overview.md` (dependencies).
 
-## Repository Map
-- `frontend/` – Vanilla HTML/CSS/JS game (entry point `index.html`, logic in `game.js`).
-- `backend/` – Node + Express leaderboard API defined in `server.js` with `package.json` for dependencies.
-- `tests/` – `test.sh` curl script plus the detailed manual test plan in `TEST_PLAN.md`.
-- `design/` & `plan/` – Reference artifacts for UI and scope; keep them unchanged for release tagging.
+## 2. Environment & Dependencies
+- Node.js 18+ with npm (needed for the backend Express dependency declared in `backend/package.json`).
+- Access to the repo root containing `frontend/`, `backend/`, `plan/`, and `Unified_ver1/`.
+- If issuer filings change, regenerate `plan/issuers_index.json` using the Data Scanner workflow (see `plan/overview.md`) and paste the new JSON into the `<script type="application/json" id="issuer-data">` block inside `frontend/index.html`.
+- No external databases; leaderboard state is memory-only and resets whenever the backend restarts.
 
-## Prerequisites
-1. Node.js 18+ and npm installed (needed for backend dependencies).
-2. Bash-compatible shell, `curl`, and `mktemp` (used by `tests/test.sh`).
-3. Modern desktop browser (Chrome/Edge/Firefox) for manual gameplay checks.
-4. Optional: lightweight static server such as `npx http-server` if you want the frontend served over HTTP instead of `file://`.
+## 3. Artifact Inventory
+| Component | Location | Notes |
+| --- | --- | --- |
+| Frontend UI & logic | `frontend/index.html`, `frontend/styles.css`, `frontend/main.js` | Implements gameplay loop, overlays, issuer panel renderer, leaderboard interactions, backend health polling. |
+| Embedded issuer data | `plan/issuers_index.json` mirrored in `frontend/index.html` (`#issuer-data` script tag) | Contains `items[]` (per-period issuers) plus `errors[]`. Update both files together to stay in sync with `Unified_ver1/data`. |
+| Backend API | `backend/server.js` | Express app with `/health`, `GET/POST /scores`, static hosting of `frontend/`, permissive CORS, in-memory top-10 clamp. |
+| Backend metadata | `backend/package.json` | `npm start` entry; only dependency is `express@^4.19.2`. |
+| Tests | `tests/test.sh`, `tests/TEST_PLAN.md` | Curl smoke for `/health` + `/scores` and manual acceptance guide aligned with `TEST.md`. |
 
-## Backend Setup & Operation
-1. Install dependencies once per environment:
+## 4. Pre-Release Checklist
+1. **Issuer data freshness**  
+   - Confirm `plan/issuers_index.json` timestamp (`generated_at_utc`) reflects the SEC data snapshot you want to ship.  
+   - Run the Data Scanner if filings changed; ensure the resulting JSON validates (`items` array present, issuer counts populated) and update the `#issuer-data` blob in `frontend/index.html`.
+2. **Frontend audit**  
+   - Spot-check `frontend/main.js` for the 20s timer constant (`timeLeft = 20`) and health/leaderboard fetch logic; ensure no uncommitted changes remain.
+3. **Backend audit**  
+   - Review `backend/server.js` for MAX_SCORES (10) and memory-only operation; confirm `/health` and `/scores` routes still match README contracts.
+4. **Documentation**  
+   - Verify README plus design/spec assets still reflect the UI & API being released.
+5. **Versioning/tagging**  
+   - Tag the repo commit for release (e.g., `git tag bug-busters-vX.Y`) before copying artifacts to the target environment.
+
+## 5. Release Procedure
+1. **Install backend deps**
    ```bash
    cd backend
-   npm install
+   npm install --production    # or npm ci if package-lock.json exists
    ```
-2. Start the API (default port 3001) from the `backend/` directory:
+2. **Configure runtime**
+   - Default port is `3000`. Override with `PORT=<value>` if needed.  
+   - Ensure the process user can read the repo root so static frontend files load.
+3. **Start backend + static host**
    ```bash
-   npm start
-   # or PORT=4000 npm start
+   PORT=3000 npm start
    ```
-   - Routes (see `backend/server.js`): `GET /health`, `GET /scores`, `POST /scores`.
-   - Data is stored in-memory; restarting the process clears the leaderboard.
-3. Health expectations: console prints `Bug Busters backend running on http://localhost:<PORT>` and `/health` returns `{ "status": "ok" }`.
+   - Expect log: `Bug Busters backend listening on port <PORT>`.
+4. **Serve frontend**
+   - The backend already exposes `frontend/`; browse `http://<host>:<PORT>/` to access the game.
+   - If hosting behind a reverse proxy/CDN, proxy `/`, `/health`, and `/scores` to the backend instance.
+5. **Data validation**
+   - Visit the Issuer panel and ensure period counts align with `plan/issuers_index.json`.
+   - Trigger the reload button to confirm the cached JSON renders correctly even after manual refresh.
 
-## Frontend Run Options
-1. **Offline/Timer Only**: Open `frontend/index.html` directly in a browser. Gameplay (bug movement, scoring, timer) works even if leaderboard fetches fail, and the UI falls back to local storage scores.
-2. **Integrated with Backend**: Serve the frontend over HTTP and proxy `/scores` to the backend so relative fetches work.
-   ```bash
-   # terminal 1
-   cd backend
-   npm start
-   # terminal 2
-   cd frontend
-   npx http-server -p 4173 --proxy http://localhost:3001?
-   ```
-   Visit `http://localhost:4173` and confirm the `Community Scores` panel flips to “Online”. Any static server with proxy support (e.g., `vite preview --proxy`) is acceptable as long as `/scores` hits the backend host.
+## 6. Verification Steps
+- **Automated smoke (`tests/test.sh`)**
+  ```bash
+  ./tests/test.sh http://localhost:3000
+  ```
+  - Confirms `GET /health` 200, `GET /scores` 200, and `POST /scores` returns 200/201.
+- **Manual gameplay checks (per `tests/TEST_PLAN.md` & `TEST.md`)**
+  - Run a full round: timer starts at 20s, bug moves every ~0.6–0.9 s, clicks increment score, overlay appears at time-up, further clicks disabled.
+  - Submit initials after a round; expect leaderboard refresh with sorted entries and backend status chip showing “Online”.
+  - Stop the backend to verify offline messaging across leaderboard submit, refresh, and issuer panel resilience.
+  - Validate issuer grouping: sample a period from the UI, open the matching `Unified_ver1/data/<CIK>/<PERIOD>/infotable.xml`, and confirm issuers match.
+  - Review documentation deliverables (README, design specs) for completeness.
 
-## Automated Verification (Tester Handoff)
-1. Ensure the backend is running (adjust `BASE_URL` if not using `http://localhost:3001`).
-2. Execute the smoke script from the repo root:
-   ```bash
-   BASE_URL=http://localhost:3001 bash tests/test.sh
-   ```
-3. The script logs each request/response to stderr and exits 0 on success. Failures stop the script and print which route failed; gather backend logs for debugging.
+## 7. Monitoring & Ops
+- Backend exposes `/health`; use it for uptime monitors. The frontend polls every 10 s and surfaces status in the header chip.
+- Tail the Node process logs for unexpected errors (the Express error handler logs stack traces before replying with HTTP 500).
+- Leaderboard data lives in RAM; expect it to clear on restart. Communicate this behavior externally if persistence is needed.
 
-## Manual QA Checklist
-Execute these steps after the automated script passes (mirrors `TEST.md` and `tests/TEST_PLAN.md`).
-- Load the frontend and verify the layout matches the design: header with score/timer pills, play area, leaderboard stub, and footer guidance.
-- Start a round via “Start Round”/“Replay Round”. Click the moving bug repeatedly; `Score: <n>` must increment by exactly 1 per hit.
-- Observe the timer counts down from 20 seconds and locks the stage at 0: gameplay stops, final score panel shows, and replay button re-enables.
-- Submit a score when the backend is online: enter nickname, send, and confirm leaderboard refreshes while keeping ≤10 rows sorted highest-first.
-- Toggle offline behavior by stopping the backend; the badge should switch to “Offline mode”, submissions are stored locally, and rows show cached/local entries without blocking gameplay.
+## 8. Rollback & Troubleshooting
+- **Rollback**: stop the new Node process, redeploy the prior tagged commit, and restart with its previously saved `plan/issuers_index.json`. Because state is ephemeral, no data migration/restore is required.
+- **Common issues**
+  - *Frontend 404s*: confirm the working directory when launching (`backend/server.js` serves `../frontend` relative to itself).
+  - *Issuer panel empty/error*: ensure the JSON embedded in `frontend/index.html` exactly matches the structure from `plan/issuers_index.json` (includes `items` array). Rebuild if SEC data changed or the script tag was truncated.
+  - *CORS failures*: backend already sets `Access-Control-Allow-Origin: *`; if front/back run on different hosts, ensure network paths aren’t blocked by proxies.
+  - *Tests failing POST /scores*: backend validates trimmed non-empty names and non-negative numeric scores. Adjust payload or inspect logs for validation errors.
 
-## Release Checklist
-- [ ] `REQUIREMENTS.md`, `TEST.md`, and `plan/overview.md` remain unchanged since the last approved handoff (PM responsibility).
-- [ ] Backend server is running on the intended host with correct `PORT` (default 3001) and logs clean of unexpected 5xx errors.
-- [ ] `tests/test.sh` executed successfully against the deployed backend (attach output to release notes).
-- [ ] Manual QA checklist completed on the target browsers; document any anomalies with reproduction steps.
-- [ ] Archive/export frontend `frontend/` and backend `backend/` directories (or deploy artifacts) per release process, noting the leaderboard is in-memory only.
-
-## Troubleshooting & Notes
-- If `tests/test.sh` cannot reach the API, verify `BASE_URL` and that CORS is enabled (it is by default via `cors` middleware).
-- `EADDRINUSE` on backend start indicates the port is busy; stop the existing service or set `PORT` to another value.
-- Frontend fetches use relative paths. When hosting the frontend separately from the backend, ensure your static server proxies `/scores` requests; otherwise, the UI will stay in offline mode by design.
-- Because scores reset on server restart, announce maintenance windows if running a live leaderboard.
+Follow this runbook for every release to keep gameplay behavior, issuer data, and backend contracts aligned with the documented requirements and deterministic workflow expectations.

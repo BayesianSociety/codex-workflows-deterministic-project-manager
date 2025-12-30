@@ -1,26 +1,16 @@
-# Bug Busters Role Breakdown
+# Agent Task Breakdown
 
-## Project Manager
-- Maintain REQUIREMENTS.md, TEST.md, and plan/overview.md so every role shares the same scope.
-- Facilitate handoffs: Designer → Frontend → Backend ↔ Tester alignment.
-- Track milestone dates (Design spec, Frontend prototype, Backend API, Test completion) and unblock issues quickly.
+| Role | Required Outputs | Key Responsibilities | Dependencies |
+| --- | --- | --- | --- |
+| Project Manager | `docs/project_overview.md`, `docs/task_breakdown.md`, `docs/requirements_checklist.md` | Capture gameplay, timer, leaderboard, data panel, backend routes, and storage strategy; maintain requirements checklist covering QA for gameplay/data integration; define tasks for all roles. | Needs input from stakeholders for priorities; informs all other roles via docs. |
+| Designer | `design/ui_spec.md`, `design/wireframe.png` | Describe screen layout (game area, score/timer, issuer panel, leaderboard), illustrate interactions (moving bug target, leaderboard placeholder, issuers panel), and add beginner-friendly styling guidance. | Relies on PM requirements; outputs consumed by Frontend Developer. |
+| Data Scanner | `data/scan_plan.md`, `data/issuers_index.json` | Enumerate folders under `Unified_ver1/data`, define parsing/validation approach, extract `<nameOfIssuer>` values per period, handle missing/malformed XML gracefully, and produce grouped issuer data JSON. | Needs raw SEC data; outputs consumed by Frontend Developer and Tester. |
+| Frontend Developer | `frontend/index.html`, `frontend/styles.css`, `frontend/game.js` | Implement the Bug Busters UI, random bug movement, click scoring, 20-second timer, final score display, issuer panel fed by `data/issuers_index.json`, and leaderboard UI interacting with backend `/scores` endpoints. | Depends on Designer specs, Data Scanner JSON, and Backend API availability. |
+| Backend Developer | `backend/server.js`, `backend/README.md` | Provide Express-like server with CORS/static support, memory-only leaderboard, `GET /health`, `GET/POST /scores` endpoints, and documentation covering start steps plus request/response shapes. | Coordinates with Frontend Developer (API contract) and Tester (route validation). |
+| Tester | `tests/test_plan.md`, `tests/check_routes.sh` | Outline manual checks for gameplay, data panel, leaderboard, and documentation; script verifying `/health` and `/scores`; include notes on issuer index failure handling. | Requires artifacts from every other role to validate end-to-end behavior. |
 
-## Designer
-- Deliver `design/ui-spec.md` describing layout, colors, typography, and interactions for the Bug Busters single-screen view.
-- Produce `design/wireframe.png` that highlights score, timer, play area, and leaderboard regions.
-- Emphasize instructions and clarity for beginner users.
-
-## Frontend Developer
-- Build `frontend/index.html`, `frontend/styles.css`, and `frontend/game.js` implementing a moving bug, score tracking, and 20-second timer.
-- Integrate optional leaderboard hooks that POST/GET scores when the backend is online while gracefully degrading when offline.
-- Keep code vanilla and well-commented for readability.
-
-## Backend Developer
-- Implement `backend/server.js` exposing `GET /health`, `GET /scores`, and `POST /scores` endpoints with validation.
-- Use an in-memory store limited to the top 10 scores; no external database or heavy stack.
-- Document run instructions so Tester can execute route checks.
-
-## Tester
-- Write `tests/test-plan.md` covering UI/gameplay verification steps and backend route expectations.
-- Create `tests/route-check.sh` to curl `/health` and `/scores` endpoints (including POST) once the backend server is up.
-- Coordinate with Frontend and Backend developers to reproduce bugs and confirm fixes.
+## Coordination Notes
+- PM delivers planning docs first so Designer, Data Scanner, and Developers have explicit requirements.
+- Designer and Data Scanner progress in parallel; Frontend integrates both design direction and issuer JSON once ready.
+- Backend API must stabilize before Frontend leaderboard integration and before Tester finalizes automation.
+- Tester engages throughout to review docs and rerun `tests/check_routes.sh` whenever backend changes.
