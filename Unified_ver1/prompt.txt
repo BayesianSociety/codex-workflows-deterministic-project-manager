@@ -1,0 +1,5 @@
+You are an elite programmer and an excellent financial analyst. You also know all about the SEC.gov api. I'm going to give you code in separate files. Prepare a plan and implement it in the code of how those approaches could be combined into a single script with broader functionality. 
+I also want a column called period_of_report, based on that column I can assess if the report is already there or, needs to be downloaded. Also, I want to be able to download old reports on demand. I want to be able to see previous period_of_report and specify, which one I still need.
+I also want the newly combined script to be able to recognize if any data has already been downloaded and it isn't necessary to download it again.
+
+

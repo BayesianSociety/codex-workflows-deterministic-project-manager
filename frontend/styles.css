@@ -1,0 +1,346 @@
+:root {
+  --color-bg: #f7f9fc;
+  --color-card: #ffffff;
+  --color-bug: #ff6b6b;
+  --color-accent: #4ecdc4;
+  --color-dark: #1a535c;
+  --color-warning: #ffd166;
+  --color-online: #2ec4b6;
+  --radius-card: 16px;
+  --shadow-card: 0 12px 32px rgba(26, 83, 92, 0.12);
+  --font-heading: "Poppins", Arial, sans-serif;
+  --font-body: "Inter", Helvetica, sans-serif;
+  --font-numeric: "Roboto Mono", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-dark);
+}
+
+svg {
+  fill: none;
+  stroke: var(--color-dark);
+  stroke-width: 2;
+}
+
+.page-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.header-strip {
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.logo svg {
+  width: 40px;
+  height: 40px;
+  stroke: var(--color-accent);
+  fill: rgba(78, 205, 196, 0.15);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-family: var(--font-numeric);
+  font-size: 1rem;
+  background: var(--color-accent);
+  color: #fff;
+  min-width: 120px;
+}
+
+.pill.score {
+  background: var(--color-bug);
+}
+
+.instruction-banner {
+  margin: 24px 0;
+  background: #fef3c7;
+  color: #92400e;
+  padding: 12px 16px;
+  border-radius: var(--radius-card);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  box-shadow: var(--shadow-card);
+}
+
+.info-icon {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.game-stage,
+.leaderboard {
+  background: var(--color-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 24px;
+}
+
+.game-stage {
+  position: relative;
+  min-height: 540px;
+  overflow: hidden;
+  background-image:
+    linear-gradient(rgba(26, 83, 92, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 83, 92, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.game-stage.ended::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(247, 249, 252, 0.85);
+  pointer-events: none;
+}
+
+.bug {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scale(1);
+  background: var(--color-bug);
+  box-shadow: 0 12px 20px rgba(255, 107, 107, 0.35);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bug:focus-visible {
+  outline: 3px solid rgba(26, 83, 92, 0.5);
+}
+
+.bug:hover,
+.bug:active {
+  transform: scale(1.1);
+}
+
+.cue {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--color-dark);
+  min-width: 160px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.cue.visible {
+  opacity: 1;
+}
+
+.stage-controls {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+}
+
+.replay-button {
+  border: none;
+  background: var(--color-bug);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.replay-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.replay-button:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.final-score {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 24px 32px;
+  border-radius: var(--radius-card);
+  text-align: center;
+  font-family: var(--font-heading);
+  box-shadow: var(--shadow-card);
+}
+
+.final-score p {
+  margin: 0 0 8px;
+}
+
+.final-score-note {
+  font-size: 0.9rem;
+  color: rgba(26, 83, 92, 0.7);
+}
+
+.leaderboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.leaderboard h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.online {
+  background: var(--color-online);
+  color: #053a44;
+}
+
+.status-badge.offline {
+  background: var(--color-warning);
+  color: #7c4a03;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  font-family: var(--font-numeric);
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  text-align: left;
+  padding: 8px 4px;
+  border-bottom: 1px solid rgba(26, 83, 92, 0.1);
+}
+
+.score-form {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.score-form input,
+.score-form button {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(26, 83, 92, 0.2);
+  font-size: 1rem;
+}
+
+.score-form button {
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.score-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(26, 83, 92, 0.7);
+}
+
+.footer-helper {
+  margin-top: 32px;
+  text-align: center;
+  color: rgba(26, 83, 92, 0.7);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 959px) {
+  .header-strip {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pill {
+    min-width: auto;
+  }
+
+  .content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 639px) {
+  .page-shell {
+    padding: 16px;
+  }
+
+  .game-stage {
+    min-height: 420px;
+  }
+
+  .bug {
+    width: 72px;
+    height: 72px;
+  }
+
+  .instruction-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

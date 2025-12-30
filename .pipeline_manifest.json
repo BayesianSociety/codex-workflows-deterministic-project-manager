@@ -1,0 +1,84 @@
+{
+  "note": "Manifest after documentation and runbook",
+  "model": "gpt-5.1-codex",
+  "sandbox": "workspace-write",
+  "snapshot_sha256": "c1fa3d43bdffb5af47f7c97a3c4b34aef65629a39df9d345922d3609124eaac3",
+  "files": {
+    "RUNBOOK.md": {
+      "sha256": "f6dd766742868fa17b6376f0fa1b5f134906e8dc1a6b4775bf85050002343e62",
+      "size": 4988
+    },
+    "README.md": {
+      "sha256": "3eda8b89fe6ae75b8e7cf569a4cf9d236680f98707278935ef5e42293947e480",
+      "size": 4151
+    },
+    "REQUIREMENTS.md": {
+      "sha256": "ec59981d7c0c15b0a8c09c368104f78a0b13aca569cd2102fdd7600093152fe9",
+      "size": 2812
+    },
+    "TEST.md": {
+      "sha256": "a98b589b0563f7a2d03ef2f818d52b014e87799de7ffb0b6be5cb7640816083a",
+      "size": 1619
+    },
+    "AGENT_TASKS.md": {
+      "sha256": "8938b282d13cd24c5f554eeea5df89e7c34c91a2df0698279ca3acaef544319b",
+      "size": 1598
+    },
+    ".pipeline_plan.json": {
+      "sha256": "9ecf13a35b6a35ea01b06cf7a2a8527f96b7e69aa20223c582d8b45b00bec4e5",
+      "size": 2328
+    },
+    ".pipeline_manifest.json": {
+      "sha256": "0a584e3c922410b40f86e4218917259f206e1ed8edc7aaf591400e2e6687d1b6",
+      "size": 2566
+    },
+    ".pipeline_plan_schema.json": {
+      "sha256": "a515d790effb8d75fa0072901d2d83eb959843923c25b7c5da7ee68b1578fad7",
+      "size": 1314
+    },
+    "multi_agent_workflow_deterministic_ver1.py": {
+      "sha256": "d757680d910ea5541add089becffa311bef9b1bdd2bb370ac90e9aa72e8191c0",
+      "size": 33673
+    },
+    "backend/package.json": {
+      "sha256": "ef3c68611d573509c9e5cb9a9619c56de18ff5e283518ee3bec613db6389d699",
+      "size": 290
+    },
+    "backend/server.js": {
+      "sha256": "2fc259300d84aac03f8437d6c0ff63007fd6721d184dd167d42d40ca66e08b81",
+      "size": 1627
+    },
+    "tests/test.sh": {
+      "sha256": "aaf09690ee0bb45d1d205c83647c9518a0a6032b5c1c37d766fb56f8a659300d",
+      "size": 944
+    },
+    "tests/TEST_PLAN.md": {
+      "sha256": "2497791521851889ab8f43ddc025cd33b2e38650b43a72501ee1389f48dbd272",
+      "size": 1651
+    },
+    "frontend/game.js": {
+      "sha256": "57321439c2812edad4e2a81d46c9cab244e141cfa0c820bcabddcd8ae501334f",
+      "size": 7727
+    },
+    "frontend/styles.css": {
+      "sha256": "59fd4880865f40a7e61eae9153a6b3fd533688d1bb24a424073dfb364868572a",
+      "size": 5917
+    },
+    "frontend/index.html": {
+      "sha256": "0f5c9bab03cde7edc6672a5467f30f53e07cfec5eb744c8039fd9eb9eaa2275a",
+      "size": 3301
+    },
+    "plan/overview.md": {
+      "sha256": "79902b33d506362e2a236079f28c2df70dd4baf38ded8dd392c9fd547d65f3c4",
+      "size": 2067
+    },
+    "design/wireframe.md": {
+      "sha256": "34d182344481577123fd220894be3f5587eb0a78dd0ae97678ee572f04506c36",
+      "size": 3052
+    },
+    "design/design_spec.md": {
+      "sha256": "cdf29551f3f47672d9ea4aab4b8ed577efce99d86d5db019a24e44ac56328fd5",
+      "size": 5407
+    }
+  }
+}

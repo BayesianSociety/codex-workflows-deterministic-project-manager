@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bug Busters</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <header class="header-strip">
+      <div class="logo">
+        <svg aria-hidden="true" viewBox="0 0 64 64">
+          <circle cx="32" cy="24" r="14"></circle>
+          <circle cx="24" cy="18" r="4"></circle>
+          <circle cx="40" cy="18" r="4"></circle>
+          <path d="M16 38 L48 38" stroke-width="6" stroke-linecap="round"></path>
+        </svg>
+        <span>Bug Busters</span>
+      </div>
+      <div class="pill timer" data-role="timer" aria-live="polite">00:20</div>
+      <div class="pill score" data-role="score" aria-live="polite">Score: 0</div>
+    </header>
+
+    <p class="instruction-banner">
+      <svg aria-hidden="true" viewBox="0 0 16 16" class="info-icon">
+        <circle cx="8" cy="8" r="7"></circle>
+        <line x1="8" y1="5" x2="8" y2="5"></line>
+        <line x1="8" y1="7" x2="8" y2="11"></line>
+      </svg>
+      Tap or click the bug to earn points. Finish before the 20-second timer hits zero.
+    </p>
+
+    <main class="content">
+      <section class="game-stage" data-role="stage" aria-label="Bug Busters play area">
+        <button class="bug" data-role="bug" aria-label="Catch the bug"></button>
+        <div class="cue" data-role="cue" aria-live="polite"></div>
+        <div class="stage-controls">
+          <button class="replay-button" data-role="replay">Start Round</button>
+        </div>
+        <div class="final-score" data-role="final-score" hidden>
+          <p>You busted <span data-role="final-score-value">0</span> bugs!</p>
+          <p class="final-score-note">Replay to beat your best.</p>
+        </div>
+      </section>
+
+      <aside class="leaderboard" aria-label="Leaderboard and guidance panel">
+        <div class="leaderboard-header">
+          <h2>Community Scores</h2>
+          <span class="status-badge offline" data-role="leaderboard-status">Offline mode</span>
+        </div>
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nickname</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody data-role="leaderboard-rows">
+            <tr>
+              <td>1</td>
+              <td colspan="2">Waiting for scores...</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td colspan="2">--</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td colspan="2">--</td>
+            </tr>
+          </tbody>
+        </table>
+        <form class="score-form" data-role="score-form">
+          <label for="nickname">Nickname (optional)</label>
+          <input id="nickname" name="nickname" maxlength="12" placeholder="e.g., SwiftBug" disabled />
+          <button type="submit" disabled>Submit Score</button>
+          <p class="form-hint" data-role="form-hint">Final score needed before submitting.</p>
+        </form>
+      </aside>
+    </main>
+
+    <footer class="footer-helper">
+      20-second rounds - Works offline - Tap replay to try again
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{
+  "project_name": "Bug Busters Game",
+  "roles": [
+    {
+      "name": "Project Manager",
+      "required_outputs": [
+        "README.md"
+      ],
+      "success_checks": [
+        "Outline overall workflow and deliverables",
+        "Assign clear responsibilities and timelines to each role",
+        "Summarize dependencies between frontend and backend work"
+      ]
+    },
+    {
+      "name": "Designer",
+      "required_outputs": [
+        "design/ui-spec.md",
+        "design/wireframe.png"
+      ],
+      "success_checks": [
+        "UI spec describes layout, colors, typography, and interactions for Bug Busters",
+        "Wireframe conveys single-screen layout with score, timer, game area, and leaderboard section",
+        "Capitalizes on beginner-friendly instructions and simplicity"
+      ]
+    },
+    {
+      "name": "Frontend Developer",
+      "required_outputs": [
+        "frontend/index.html",
+        "frontend/styles.css",
+        "frontend/game.js"
+      ],
+      "success_checks": [
+        "Implements clickable moving bug, score display, and 20-second timer",
+        "Integrates optional leaderboard fetch/post when backend available",
+        "No heavy frameworks; vanilla JS/CSS; code easy for beginners"
+      ]
+    },
+    {
+      "name": "Backend Developer",
+      "required_outputs": [
+        "backend/server.js"
+      ],
+      "success_checks": [
+        "Provides in-memory store for scores",
+        "Exposes GET /health and GET/POST /scores with validation",
+        "Uses lightweight stack (e.g., Node/Express) and documents how to run"
+      ]
+    },
+    {
+      "name": "Tester",
+      "required_outputs": [
+        "tests/test-plan.md",
+        "tests/route-check.sh"
+      ],
+      "success_checks": [
+        "Test plan covers UI/game basics and API endpoints",
+        "Shell script verifies backend routes (health and score CRUD)",
+        "Instructions explain how to run tests after backend start"
+      ]
+    }
+  ],
+  "global_constraints": [
+    "Single-screen browser game named \"Bug Busters\"",
+    "Game lasts 20 seconds and ends with final score display",
+    "Optional backend leaderboard limited to top 10 in memory",
+    "Files organized into clear folders (design/, frontend/, backend/, tests/)",
+    "Keep implementation approachable for beginners; no external DB"
+  ]
+}
